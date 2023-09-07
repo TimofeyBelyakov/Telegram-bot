@@ -2,12 +2,13 @@ import requests
 from envparse import Env
 
 
-# По сути класс нужен лишь для того, чтобы отправлять запросы боту.
+# По сути класс нужен лишь для того, чтобы отправлять запросы боту по ссылке.
 class TelegramClient:
     def __init__(self, token: str, base_url: str):
         self.token = token
         self.base_url = base_url
 
+    # Подготовка ссылки.
     def prepare_url(self, method: str) -> str:
         result_url = f"{self.base_url}/bot{self.token}/"
         if method is not None:
