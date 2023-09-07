@@ -11,6 +11,10 @@ class SQLiteClient:
     def create_conn(self):
         self.conn = sqlite3.connect(self.path, check_same_thread=False)
 
+    # Закрытие соединения.
+    def close_conn(self):
+        self.conn.close()
+
     # Выполнение команд по внесению изменений в базу данных.
     def execute_query(self, query: str, params: tuple):
         if self.conn is not None:
@@ -35,7 +39,8 @@ if __name__ == "__main__":
         CREATE TABLE IF NOT EXISTS users (
             user_id int PRIMARY KEY,
             username text,
-            chat_id int
+            chat_id int,
+            last_updated_date date
         )
     """
 
