@@ -14,8 +14,8 @@ env = Env()
 TOKEN = env.str("TOKEN")
 
 
-# Класс напоминалки.
 class Reminder:
+    """Класс напоминалки."""
     __GET_TASKS = """
         SELECT chat_id from users WHERE last_updated_date IS NULL OR last_updated_date < date('now');
     """
@@ -25,17 +25,17 @@ class Reminder:
         self.sqlite_client = sqlite_client
         self.set_up = False
 
-    # Подключение к базе данных.
     def setup(self):
-        self.sqlite_client.create_conn()
+        """Подключение к базе данных."""
+        self.sqlite_client.create_connection()
         self.set_up = True
 
-    # Закрытие соединения.
     def shutdown(self):
-        self.sqlite_client.close_conn()
+        """Закрытие соединения."""
+        self.sqlite_client.close_connection()
 
-    # Рассылка напоминаний пользователям.
     def notify(self, chat_ids: list):
+        """Рассылка напоминаний пользователям."""
         for chat_id in chat_ids:
             response = self.telegram_client.post(method="sendMessage", params={
                 "text": "*пинок под зад*",
@@ -43,10 +43,10 @@ class Reminder:
             })
             logger.info(response)
 
-    # Поиск пользователей, не отправивших сегодня сообщение, и вызов напоминалки.
     def execute(self):
+        """Поиск пользователей, не отправивших сегодня сообщение, и вызов напоминалки."""
         # Извлечение пользователей, не отправивших сегодня сообщение.
-        chat_ids = self.sqlite_client.execute_select_query(self.__GET_TASKS)
+        chat_ids = self.sqlite_client.execute_select_query(query=self.__GET_TASKS)
         if chat_ids:
             # Вызов напоминалки
             self.notify(chat_ids=[tuple_chat_id[0] for tuple_chat_id in chat_ids])

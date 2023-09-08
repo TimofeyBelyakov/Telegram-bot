@@ -2,8 +2,8 @@ from clients.sqlite_client import SQLiteClient
 from datetime import date
 
 
-# Класс для работы с пользователем в базе данных.
 class UserActioner:
+    """Класс для работы с пользователем в базе данных."""
     __CREATE_USER = """
         INSERT INTO users (user_id, username, chat_id) VALUES (?, ?, ?);
     """
@@ -17,29 +17,34 @@ class UserActioner:
     def __init__(self, sqlite_client: SQLiteClient):
         self.sqlite_client = sqlite_client
 
-    # Подключение к базе данных.
     def setup(self):
-        self.sqlite_client.create_conn()
+        """Подключение к базе данных."""
+        self.sqlite_client.create_connection()
 
-    # Закрытие соединения.
     def shutdown(self):
-        self.sqlite_client.close_conn()
+        """Закрытие соединения."""
+        self.sqlite_client.close_connection()
 
-    # Добавление пользователя в базу данных.
     def create_user(self, user_id: int, username: str, chat_id: int):
-        self.sqlite_client.execute_query(self.__CREATE_USER, (user_id, username, chat_id))
+        """Добавление пользователя в базу данных."""
+        self.sqlite_client.execute_query(query=self.__CREATE_USER, params=(user_id, username, chat_id))
 
-    # Получение пользователя из базы данных.
     def get_user(self, user_id: int):
-        user = self.sqlite_client.execute_select_query(self.__GET_USER % user_id)
+        """Получение пользователя из базы данных."""
+        user = self.sqlite_client.execute_select_query(query=self.__GET_USER % user_id)
         return user[0] if user else None  # Предполагается, что пользователь с таким user_id один.
 
     def update_date(self, user_id: int, updated_date: date):
-        self.sqlite_client.execute_query(self.__UPDATE_LAST_DATE, (updated_date, user_id))
+        """Обновление даты последнего отправленного пользователем сообщения."""
+        self.sqlite_client.execute_query(query=self.__UPDATE_LAST_DATE, params=(updated_date, user_id))
 
 
 if __name__ == "__main__":
+    user_id = 12345
+    username = "tim"
+    chat_id = 12345
+
     user_actioner = UserActioner(SQLiteClient("users.db"))
     user_actioner.setup()
-    user_actioner.create_user(12345, "tim", 12345)
-    print(user_actioner.get_user(12345))
+    user_actioner.create_user(user_id=user_id, username=username, chat_id=chat_id)
+    print(user_actioner.get_user(user_id=user_id))

@@ -24,20 +24,20 @@ base_url = "https://api.telegram.org"
 db = "users.db"
 
 
-# Расширение базового класса.
 class MyBot(telebot.TeleBot):
+    """Расширение базового класса telebot.TeleBot."""
     def __init__(self, telegram_client: TelegramClient, user_actioner: UserActioner, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Добавление новых полей.
         self.telegram_client = telegram_client
         self.user_actioner = user_actioner
 
-    # Метод для подключения к базе данных.
     def setup_resources(self):
+        """Метод для подключения к базе данных."""
         self.user_actioner.setup()
 
-    # Метод для закрытия соединения с базой данных.
     def shutdown_resources(self):
+        """Метод для закрытия соединения с базой данных."""
         self.user_actioner.shutdown()
 
 
@@ -49,9 +49,9 @@ bot = MyBot(
 )
 
 
-# Обработка команды /start. Регистрация пользователя.
 @bot.message_handler(commands=["start"])
 def start(message: Message):
+    """Обработка команды /start. Регистрация пользователя."""
     # В users.json хранятся зарегистрированные пользователи.
     with open("users.json", "r") as file:
         # Считываем зарегистрированных пользователей.
@@ -82,8 +82,8 @@ def start(message: Message):
                                        f"твой user_id: {user_id}")
 
 
-# Генерирует ответ на сообщение от пользователя.
 def handle_speech(message: Message):
+    """Генерирует ответ на сообщение от пользователя."""
     with open("users.json", "r") as file:
         data_from_json = json.load(file)
 
@@ -100,15 +100,16 @@ def handle_speech(message: Message):
     bot.reply_to(message=message, text="мне не интересно")
 
 
-# Обработка команды /say_speech.
 @bot.message_handler(commands=["say_speech"])
 def say_speech(message: Message):
+    """Обработка команды /say_speech."""
     bot.reply_to(message=message, text="чем занят лох?")
     # Если пользователь ответил боту, то вызывается handle_speech().
     bot.register_next_step_handler(message, callback=handle_speech)
 
 
 def create_err_message(err: Exception) -> str:
+    """Генерирует сообщение об ошибке."""
     return f"{datetime.now()}\n{err.__class__} :: {err}"
 
 
@@ -121,8 +122,7 @@ while True:
     except Exception as err:
         err_message = create_err_message(err)
         # Отправляем сообщение об ошибке в чат.
-        bot.telegram_client.post(method="sendMessage", params={"chat_id": ADMIN_CHAT_ID,
-                                                               "text": err_message})
+        bot.telegram_client.post(method="sendMessage", params={"chat_id": ADMIN_CHAT_ID, "text": err_message})
         # Логирование ошибки.
         logger.error(err_message)
         # Закрытие соединения.
